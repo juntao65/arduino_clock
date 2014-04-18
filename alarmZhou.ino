@@ -7,8 +7,6 @@
 #include "EEPROMAnything.h"  // data persistence
 #include <IRLib.h>   //  infrared
 
-// git git
-
 Adafruit_RGBLCDShield lcd = Adafruit_RGBLCDShield();
 
 // These #defines make it easy to set the backlight color
