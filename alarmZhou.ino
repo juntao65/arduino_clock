@@ -24,7 +24,8 @@ struct config_t
 {
     time_t alarm_t;      // unix timestamp for alarm
     time_t closeTime_t;   // unix timestamp for close time (wh
-    time_t lighton_t;    // timestamp for turning on light
+    time_t lighton_t_start;    // timestamp for turning on light starting
+    time_t lighton_t_stop;    // timestamp for turning on light stopping
     unsigned long autostop_delay;  // num millisec to delay autostop for curtain
     int bgColor;  // stores bgcolor integer
     byte eventStatus; // if alarm is on or off
@@ -145,7 +146,7 @@ void loop() {
   }
   
   // check if time to turn dim light on
-  eventCheck(conf.lighton_t,3);
+  eventCheck(conf.lighton_t_start, conf.lighton_t_stop, 3);
   
   
   // Get the current time
@@ -377,12 +378,13 @@ String getFormattedTime(int tHour, int tMin, int tFormat){
 // 2 - close curtain
 // 3 - dim lights on
 time_t lastEvent_t=0;  // to prevent from firing multiple times
-void eventCheck(time_t eventTime_t,byte action_type){
+void eventCheck(time_t eventTime_t_start, time_t eventTime_t_stop, byte action_type){
    // Get the current time
    DateTime now = RTC.now(); 
   
    if( 
-   hour(eventTime_t) == now.hour() && minute(eventTime_t) == now.minute() 
+   hour(eventTime_t_start) >= now.hour() && minute(eventTime_t_start) == now.minute() 
+   && hour(eventTime_t_stop) < now.hour() && minute(eventTime_t_stop) == now.minute() 
    && ((now.unixtime()-lastEvent_t) > 60)        // if hasnt been run since a minute ago
    ){
      
@@ -394,7 +396,8 @@ void eventCheck(time_t eventTime_t,byte action_type){
          curtain_move(2,conf.autostop_delay);   // Close
          break;
        case 3:
-         lights_on();                          // Turn lights on
+         //lights_on();                          // Turn lights on
+         sendRawCode(3);  // send dim up signal
          break;
      }
      
@@ -487,7 +490,11 @@ void mainMenu() {
           menu_secondrow_str = " Set close time";
           break;
         case 5:
-          if(go_submenu==1) showSetTimeMenu(conf.lighton_t,0);
+          if(go_submenu==1) showSetTimeMenu(conf.lighton_t_start,0);
+          menu_secondrow_str = " Set light time";
+          break;
+        case 6:
+          if(go_submenu==1) showSetTimeMenu(conf.lighton_t_stop,0);
           menu_secondrow_str = " Set light time";
           break;
       
