@@ -493,6 +493,10 @@ void mainMenu() {
           if(go_submenu==1) showSetTimeMenu(conf.lighton_t_start,0);
           menu_secondrow_str = " Set light time";
           break;
+        case 6:
+          if(go_submenu==1) showSetTimeMenu(conf.lighton_t_stop,0);
+          menu_secondrow_str = " Set light time";
+          break;
       
       }
       
